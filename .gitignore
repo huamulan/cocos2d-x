@@ -43,6 +43,7 @@ local.properties
 
 # Ignore files build by linux
 *.o
+*.a
 
 # Ignore python compiled files
 *.pyc
