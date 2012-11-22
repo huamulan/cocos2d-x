@@ -43,6 +43,8 @@
 #include "ShaderTest/ShaderTest.h"
 #include "ExtensionsTest/ExtensionsTest.h"
 #include "MutiTouchTest/MutiTouchTest.h"
+#include "ClippingNodeTest/ClippingNodeTest.h"
+#include "ChipmunkTest/ChipmunkTest.h"
 
 enum
 {
@@ -71,6 +73,7 @@ enum
     TEST_SCHEDULER,
     TEST_RENDERTEXTURE,
     TEST_TEXTURE2D,
+    TEST_CHIPMUNK,
     TEST_BOX2D,
     TEST_BOX2DBED,
     TEST_EFFECT_ADVANCE,
@@ -88,6 +91,7 @@ enum
     TEST_EXTENSIONS,
     TEST_SHADER,
     TEST_MUTITOUCH,
+    TEST_CLIPPINGNODE,
     TESTS_COUNT,    
 };
 
@@ -117,6 +121,7 @@ const std::string g_aTestNames[TESTS_COUNT] = {
     "SchdulerTest",
     "RenderTextureTest",
     "Texture2DTest",
+    "ChipmunkTest",
     "Box2dTest",
     "Box2dTestBed",
     "EffectAdvancedTest",
@@ -133,7 +138,8 @@ const std::string g_aTestNames[TESTS_COUNT] = {
     "TextureCacheTest",
     "ExtensionsTest",
     "ShaderTest",
-    "MutiTouchTest"
+    "MutiTouchTest",
+    "ClippingNodeTest"
 };
 
 #endif

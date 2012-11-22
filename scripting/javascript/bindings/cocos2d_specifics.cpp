@@ -295,20 +295,20 @@ JSBool js_cocos2dx_CCMenuItemImage_create(JSContext *cx, uint32_t argc, jsval *v
 {
 	if (argc >= 2 && argc <= 5) {
 		jsval *argv = JS_ARGV(cx, vp);
-		const char *arg0; do { JSString *tmp = JS_ValueToString(cx, argv[0]); arg0 = JS_EncodeString(cx, tmp); } while (0);
-		const char *arg1; do { JSString *tmp = JS_ValueToString(cx, argv[1]); arg1 = JS_EncodeString(cx, tmp); } while (0);
-		const char *arg2 = NULL;
+		JSStringWrapper arg0(argv[0]);
+		JSStringWrapper arg1(argv[1]);
+		JSStringWrapper arg2;
 
-		JSBool thirdArgIsString = JS_TRUE;
+		bool thirdArgIsString = true;
 
 		jsval jsCallback = JSVAL_VOID;
 		jsval jsThis = JSVAL_VOID;
 
 		int last = 2;
 		if (argc >= 3) {
-			thirdArgIsString = JSVAL_IS_STRING(argv[2]);
+			thirdArgIsString = argv[2].isString();
 			if (thirdArgIsString) {
-				do { JSString *tmp = JS_ValueToString(cx, argv[2]); arg2 = JS_EncodeString(cx, tmp); } while (0);
+				arg2.set(argv[2], cx);
 				last = 3;
 			}
 		}
@@ -366,8 +366,8 @@ JSBool js_cocos2dx_CCMenuItemAtlasFont_create(JSContext *cx, uint32_t argc, jsva
 {
 	if (argc >= 5) {
 		jsval *argv = JS_ARGV(cx, vp);
-		const char *arg0; do { JSString *tmp = JS_ValueToString(cx, argv[0]); arg0 = JS_EncodeString(cx, tmp); } while (0);
-		const char *arg1; do { JSString *tmp = JS_ValueToString(cx, argv[1]); arg1 = JS_EncodeString(cx, tmp); } while (0);
+		JSStringWrapper arg0(argv[0]);
+		JSStringWrapper arg1(argv[1]);
 		int arg2; if (!JS_ValueToInt32(cx, argv[2], &arg2)) return JS_FALSE;
 		int arg3; if (!JS_ValueToInt32(cx, argv[3], &arg3)) return JS_FALSE;
 		int arg4; if (!JS_ValueToInt32(cx, argv[4], &arg4)) return JS_FALSE;
@@ -385,7 +385,7 @@ JSBool js_cocos2dx_CCMenuItemFont_create(JSContext *cx, uint32_t argc, jsval *vp
 {
 	if (argc >= 1 && argc <= 3) {
 		jsval *argv = JS_ARGV(cx, vp);
-		const char *arg0; do { JSString *tmp = JS_ValueToString(cx, argv[0]); arg0 = JS_EncodeString(cx, tmp); } while (0);
+		JSStringWrapper arg0(argv[0]);
 		cocos2d::CCMenuItemFont* ret = cocos2d::CCMenuItemFont::create(arg0);
 		JSObject *obj = bind_menu_item<cocos2d::CCMenuItemFont>(cx, ret, (argc >= 2 ? argv[1] : JSVAL_VOID), (argc == 3 ? argv[2] : JSVAL_VOID));
 		JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(obj));
@@ -780,6 +780,22 @@ CCArray * JSScheduleWrapper::getTargetForNativeNode(CCNode *pNode) {
     
 }
 
+void JSScheduleWrapper::scheduleFunc(float dt) const
+{
+    jsval retval = JSVAL_NULL, data = DOUBLE_TO_JSVAL(dt);
+    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
+
+    JSBool ok = JS_AddValueRoot(cx, &data);
+    if(!ok) {
+        return;
+    }
+
+    if(!JSVAL_IS_VOID(jsCallback)  && !JSVAL_IS_VOID(jsThisObj)) {
+        JS_CallFunctionValue(cx, JSVAL_TO_OBJECT(jsThisObj), jsCallback, 1, &data, &retval);
+    }
+
+    JS_RemoveValueRoot(cx, &data);
+}
 
 JSBool js_CCNode_unschedule(JSContext *cx, uint32_t argc, jsval *vp)
 {
@@ -929,7 +945,7 @@ JSBool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         JSScheduleWrapper *tmpCobj = new JSScheduleWrapper();
         tmpCobj->autorelease();
 
-    	double interval;
+    	double interval = 0.0;
         if( argc >= 2 ) {
             if( ! JS_ValueToNumber(cx, argv[1], &interval ) )
                 return JS_FALSE;
@@ -938,7 +954,7 @@ JSBool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         //
         // repeat
         //
-        double repeat;
+        double repeat = 0.0;
         if( argc >= 3 ) {
             if( ! JS_ValueToNumber(cx, argv[2], &repeat ) )
                 return JS_FALSE;
@@ -947,7 +963,7 @@ JSBool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         //
         // delay
         //
-        double delay;
+        double delay = 0.0;
         if( argc >= 4 ) {
             if( ! JS_ValueToNumber(cx, argv[3], &delay ) )
                 return JS_FALSE;
@@ -964,9 +980,9 @@ JSBool js_CCNode_schedule(JSContext *cx, uint32_t argc, jsval *vp)
         } if(argc == 2) {
             sched->scheduleSelector(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCobj, interval, !node->isRunning());
         } if(argc == 3) {
-            sched->scheduleSelector(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCobj, 0, !node->isRunning(), repeat, 0);
+            sched->scheduleSelector(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCobj, interval, (unsigned int)repeat, 0, !node->isRunning());
         } if (argc == 4) {
-            sched->scheduleSelector(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCobj, 0, !node->isRunning(), repeat, delay);
+            sched->scheduleSelector(schedule_selector(JSScheduleWrapper::scheduleFunc), tmpCobj, interval, (unsigned int)repeat, delay, !node->isRunning());
         }
         
         JS_SetReservedSlot(p->obj, 0, argv[0]);
