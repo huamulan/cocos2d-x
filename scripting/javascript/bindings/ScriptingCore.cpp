@@ -457,7 +457,7 @@ JSBool ScriptingCore::runScript(const char *path, JSObject* global, JSContext* c
 		JSAutoCompartment ac(cx, global);
         evaluatedOK = JS_ExecuteScript(cx, global, script, &rval);
         if (JS_FALSE == evaluatedOK) {
-            fprintf(stderr, "(evaluatedOK == JS_FALSE)\n");
+            CCLog("(evaluatedOK == JS_FALSE)");
         }
     }
     return evaluatedOK;
@@ -490,7 +490,7 @@ JSBool ScriptingCore::log(JSContext* cx, uint32_t argc, jsval *vp)
         JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "S", &string);
         if (string) {
 			JSStringWrapper wrapper(string);
-            js_log((char *)string);
+            js_log((char *)wrapper);
         }
     }
     return JS_TRUE;
