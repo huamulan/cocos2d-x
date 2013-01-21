@@ -69,28 +69,6 @@ public:
     {}
     virtual ~CCMenu(){}
 
-    /** creates an empty CCMenu 
-    @deprecated: This interface will be deprecated sooner or later.
-    */
-    CC_DEPRECATED_ATTRIBUTE static CCMenu* node();
-
-    /** creates a CCMenu with it's items 
-    @deprecated: This interface will be deprecated sooner or later.
-    */
-    CC_DEPRECATED_ATTRIBUTE static CCMenu* menuWithItems(CCMenuItem* item, ...);
-
-    /** creates a CCMenu with a NSArray of CCMenuItem objects 
-    @deprecated: This interface will be deprecated sooner or later.
-    */
-    CC_DEPRECATED_ATTRIBUTE static CCMenu* menuWithArray(CCArray* pArrayOfItems);
-
-    /** creates a CCMenu with it's item, then use addChild() to add 
-      * other items. It is used for script, it can't init with undetermined
-      * number of variables.
-    @deprecated: This interface will be deprecated sooner or later.
-    */
-    CC_DEPRECATED_ATTRIBUTE static CCMenu* menuWithItem(CCMenuItem* item);
-
     /** creates an empty CCMenu */
     static CCMenu* create();
 
@@ -132,11 +110,12 @@ public:
     /** align items in rows of columns */
     void alignItemsInColumns(unsigned int columns, ...);
     void alignItemsInColumns(unsigned int columns, va_list args);
-    void alignItemsInColumnsWithArray(CCArray *arrayOfNumbers);
+    void alignItemsInColumnsWithArray(CCArray* rows);
 
     /** align items in columns of rows */
     void alignItemsInRows(unsigned int rows, ...);
     void alignItemsInRows(unsigned int rows, va_list args);
+    void alignItemsInRowsWithArray(CCArray* columns);
 
     /** set event handler priority. By default it is: kCCMenuTouchPriority */
     void setHandlerPriority(int newPriority);

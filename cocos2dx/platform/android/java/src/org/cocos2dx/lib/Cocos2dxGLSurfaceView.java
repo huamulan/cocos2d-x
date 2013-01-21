@@ -105,6 +105,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 							Cocos2dxGLSurfaceView.this.mCocos2dxEditText.removeTextChangedListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper);
 							final InputMethodManager imm = (InputMethodManager) Cocos2dxGLSurfaceView.mCocos2dxGLSurfaceView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 							imm.hideSoftInputFromWindow(Cocos2dxGLSurfaceView.this.mCocos2dxEditText.getWindowToken(), 0);
+							Cocos2dxGLSurfaceView.this.requestFocus();
 							Log.d("GLSurfaceView", "HideSoftInput");
 						}
 						break;
@@ -116,6 +117,16 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
+
+
+       public static void queueAccelerometer(final float x, final float y, final float z, final long timestamp) {	
+	   mCocos2dxGLSurfaceView.queueEvent(new Runnable() {
+		@Override
+		    public void run() {
+			    Cocos2dxAccelerometer.onSensorChanged(x, y, z, timestamp);
+		}
+	    });
+	}
 
 	public void setCocos2dxRenderer(final Cocos2dxRenderer renderer) {
 		this.mCocos2dxRenderer = renderer;

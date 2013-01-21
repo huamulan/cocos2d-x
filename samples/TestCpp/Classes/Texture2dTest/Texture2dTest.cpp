@@ -46,6 +46,19 @@ TEXTURE2D_CREATE_FUNC(TexturePVRI8);
 TEXTURE2D_CREATE_FUNC(TexturePVRI8v3);
 TEXTURE2D_CREATE_FUNC(TexturePVRAI88);
 TEXTURE2D_CREATE_FUNC(TexturePVRAI88v3);
+TEXTURE2D_CREATE_FUNC(TexturePVRBadEncoding);
+TESTLAYER_CREATE_FUNC(TexturePNG);
+TESTLAYER_CREATE_FUNC(TextureJPEG);
+TESTLAYER_CREATE_FUNC(TextureTIFF);
+TESTLAYER_CREATE_FUNC(TexturePixelFormat);
+TESTLAYER_CREATE_FUNC(TextureBlend);
+TESTLAYER_CREATE_FUNC(TextureAsync);
+TESTLAYER_CREATE_FUNC(TextureGlClamp);
+TESTLAYER_CREATE_FUNC(TextureGlRepeat);
+TESTLAYER_CREATE_FUNC(TextureSizeTest);
+TESTLAYER_CREATE_FUNC(TextureCache1);
+TESTLAYER_CREATE_FUNC(TextureDrawAtPoint);
+TESTLAYER_CREATE_FUNC(TextureDrawInRect);
 
 static NEWTEXTURE2DTESTFUNC createFunctions[] =
 {
@@ -82,6 +95,20 @@ static NEWTEXTURE2DTESTFUNC createFunctions[] =
     createTexturePVRI8v3,
     createTexturePVRAI88,
     createTexturePVRAI88v3,
+    
+    createTexturePVRBadEncoding,
+    createTexturePNG,
+    createTextureJPEG,
+    createTextureTIFF,
+    createTexturePixelFormat,
+    createTextureBlend,
+    createTextureAsync,
+    createTextureGlClamp,
+    createTextureGlRepeat,
+    createTextureSizeTest,
+    createTextureCache1,
+    createTextureDrawAtPoint,
+    createTextureDrawInRect,
 };
 
 static unsigned int TEST_CASE_COUNT = sizeof(createFunctions) / sizeof(createFunctions[0]);
@@ -301,8 +328,8 @@ void TextureMipMap::onEnter()
     scale2->autorelease();
     CCActionInterval* sc_back2 = scale2->reverse();
 
-    img0->runAction(CCRepeatForever::create((CCActionInterval*)(CCSequence::create(scale1, sc_back, NULL))));
-    img1->runAction(CCRepeatForever::create((CCActionInterval*)(CCSequence::create(scale2, sc_back2, NULL))));
+    img0->runAction(CCRepeatForever::create(CCSequence::create(scale1, sc_back, NULL)));
+    img1->runAction(CCRepeatForever::create(CCSequence::create(scale2, sc_back2, NULL)));
     CCTextureCache::sharedTextureCache()->dumpCachedTextureInfo();
 }
 
@@ -352,8 +379,8 @@ void TexturePVRMipMap::onEnter()
         scale2->autorelease();
         CCActionInterval* sc_back2 = scale2->reverse();
         
-        imgMipMap->runAction(CCRepeatForever::create((CCActionInterval*)(CCSequence::create(scale1, sc_back, NULL))));
-        img->runAction(CCRepeatForever::create((CCActionInterval*)(CCSequence::create(scale2, sc_back2, NULL))));
+        imgMipMap->runAction(CCRepeatForever::create(CCSequence::create(scale1, sc_back, NULL)));
+        img->runAction(CCRepeatForever::create(CCSequence::create(scale2, sc_back2, NULL)));
     }
     CCTextureCache::sharedTextureCache()->dumpCachedTextureInfo();
 }
@@ -396,8 +423,8 @@ void TexturePVRMipMap2::onEnter()
     scale2->autorelease();
     CCActionInterval* sc_back2 = scale2->reverse();
     
-    imgMipMap->runAction(CCRepeatForever::create((CCActionInterval*)(CCSequence::create(scale1, sc_back, NULL))));
-    img->runAction(CCRepeatForever::create((CCActionInterval*)(CCSequence::create(scale2, sc_back2, NULL))));
+    imgMipMap->runAction(CCRepeatForever::create(CCSequence::create(scale1, sc_back, NULL)));
+    img->runAction(CCRepeatForever::create(CCSequence::create(scale2, sc_back2, NULL)));
     CCTextureCache::sharedTextureCache()->dumpCachedTextureInfo();
 }
 
@@ -1294,7 +1321,7 @@ void TextureAlias::onEnter()
     // scale them to show
     CCScaleBy* sc = CCScaleBy::create(3, 8.0f);
     CCScaleBy* sc_back = (CCScaleBy*) (sc->reverse());
-    CCRepeatForever* scaleforever = CCRepeatForever::create((CCActionInterval*) (CCSequence::create(sc, sc_back, NULL)));
+    CCRepeatForever* scaleforever = CCRepeatForever::create(CCSequence::create(sc, sc_back, NULL));
     CCRepeatForever* scaleToo = (CCRepeatForever*) (scaleforever->copy());
     scaleToo->autorelease();
 
@@ -1393,8 +1420,8 @@ void TexturePixelFormat::onEnter()
 
     CCFadeOut* fadeout = CCFadeOut::create(2);
     CCFadeIn*  fadein  = CCFadeIn::create(2);
-    CCFiniteTimeAction* seq = CCSequence::create(CCDelayTime::create(2), fadeout, fadein, NULL);
-    CCRepeatForever* seq_4ever = CCRepeatForever::create((CCActionInterval*) seq);
+    CCSequence* seq = CCSequence::create(CCDelayTime::create(2), fadeout, fadein, NULL);
+    CCRepeatForever* seq_4ever = CCRepeatForever::create(seq);
     CCRepeatForever* seq_4ever2 = (CCRepeatForever*) (seq_4ever->copy()); seq_4ever2->autorelease();
     CCRepeatForever* seq_4ever3 = (CCRepeatForever*) (seq_4ever->copy()); seq_4ever3->autorelease();
     CCRepeatForever* seq_4ever4 = (CCRepeatForever*) (seq_4ever->copy()); seq_4ever4->autorelease();
@@ -1489,7 +1516,7 @@ void TextureAsync::onEnter()
 
     CCScaleBy* scale = CCScaleBy::create(0.3f, 2);
     CCScaleBy* scale_back = (CCScaleBy*)scale->reverse();
-    CCSequence* seq = (CCSequence*)CCSequence::create(scale, scale_back, NULL);
+    CCSequence* seq = CCSequence::create(scale, scale_back, NULL);
     label->runAction(CCRepeatForever::create(seq));
 
     scheduleOnce(schedule_selector(TextureAsync::loadImages), 1.0f);
@@ -1576,7 +1603,7 @@ void TextureGlClamp::onEnter()
     sprite->runAction(rotate);
     CCScaleBy* scale = CCScaleBy::create(2, 0.04f);
     CCScaleBy* scaleBack = (CCScaleBy*) (scale->reverse());
-    CCFiniteTimeAction* seq = CCSequence::create(scale, scaleBack, NULL);
+    CCSequence* seq = CCSequence::create(scale, scaleBack, NULL);
     sprite->runAction(seq);
 }
 
@@ -1613,7 +1640,7 @@ void TextureGlRepeat::onEnter()
     sprite->runAction(rotate);
     CCScaleBy* scale = CCScaleBy::create(2, 0.04f);
     CCScaleBy* scaleBack = (CCScaleBy*) (scale->reverse());
-    CCFiniteTimeAction* seq = CCSequence::create(scale, scaleBack, NULL);
+    CCSequence* seq = CCSequence::create(scale, scaleBack, NULL);
     sprite->runAction(seq);
 }
 

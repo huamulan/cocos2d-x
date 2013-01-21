@@ -374,19 +374,11 @@ int CCLuaEngine::executeCallFuncActionEvent(CCCallFunc* pAction, CCObject* pTarg
     return ret;
 }
 
-int CCLuaEngine::executeSchedule(CCTimer* pTimer, float dt, CCNode* pNode/* = NULL*/)
+int CCLuaEngine::executeSchedule(int nHandler, float dt, CCNode* pNode/* = NULL*/)
 {
-    int ret = 0;
-    do 
-    {
-        int nScriptHandler = pTimer->getScriptHandler();
-        CC_BREAK_IF(0 == nScriptHandler);
-
-        cleanStack();
-        pushFloat(dt);
-        ret = executeFunctionByHandler(nScriptHandler, 1);
-    } while (0);
-    return ret;
+    cleanStack();
+    pushFloat(dt);
+    return executeFunctionByHandler(nHandler, 1);
 }
 
 // functions for excute touch event
@@ -395,7 +387,7 @@ int CCLuaEngine::executeLayerTouchEvent(CCLayer* pLayer, int eventType, CCTouch 
     int ret = 0;
     do 
     {
-        CCTouchScriptHandlerEntry* pScriptHandlerEntry = pLayer->getScriptHandlerEntry();
+        CCTouchScriptHandlerEntry* pScriptHandlerEntry = pLayer->getScriptTouchHandlerEntry();
         CC_BREAK_IF(NULL == pScriptHandlerEntry);
         int nScriptHandler = pScriptHandlerEntry->getHandler();
         CC_BREAK_IF(0 == nScriptHandler);
@@ -415,7 +407,7 @@ int CCLuaEngine::executeLayerTouchesEvent(CCLayer* pLayer, int eventType, CCSet 
     int ret = 0;
     do 
     {
-        CCTouchScriptHandlerEntry* pScriptHandlerEntry = pLayer->getScriptHandlerEntry();
+        CCTouchScriptHandlerEntry* pScriptHandlerEntry = pLayer->getScriptTouchHandlerEntry();
         CC_BREAK_IF(NULL == pScriptHandlerEntry);
         int nScriptHandler = pScriptHandlerEntry->getHandler();
         CC_BREAK_IF(0 == nScriptHandler);
@@ -442,6 +434,45 @@ int CCLuaEngine::executeLayerTouchesEvent(CCLayer* pLayer, int eventType, CCSet 
         ret = executeFunctionByHandler(nScriptHandler, 2);
     } while (0);
 
+    return ret;
+}
+
+int CCLuaEngine::executeLayerKeypadEvent(CCLayer* pLayer, int eventType)
+{
+    int ret = 0;
+    do
+    {
+        CCScriptHandlerEntry* pScriptHandlerEntry = pLayer->getScriptKeypadHandlerEntry();
+        CC_BREAK_IF(NULL == pScriptHandlerEntry);
+        int nScriptHandler = pScriptHandlerEntry->getHandler();
+        CC_BREAK_IF(0 == nScriptHandler);
+        
+        cleanStack();
+        lua_newtable(m_state);
+        lua_pushinteger(m_state, eventType);
+        ret = executeFunctionByHandler(nScriptHandler, 1);
+    } while (0);
+    return ret;
+}
+
+int CCLuaEngine::executeAccelerometerEvent(CCLayer* pLayer, CCAcceleration* pAccelerationValue)
+{
+    int ret = 0;
+    do
+    {
+        CCScriptHandlerEntry* pScriptHandlerEntry = pLayer->getScriptAccelerateHandlerEntry();
+        CC_BREAK_IF(NULL == pScriptHandlerEntry);
+        int nScriptHandler = pScriptHandlerEntry->getHandler();
+        CC_BREAK_IF(0 == nScriptHandler);
+        
+        cleanStack();
+        lua_newtable(m_state);
+        lua_pushnumber(m_state, pAccelerationValue->x);
+        lua_pushnumber(m_state, pAccelerationValue->y);
+        lua_pushnumber(m_state, pAccelerationValue->z);
+        lua_pushnumber(m_state, pAccelerationValue->timestamp);
+        ret = executeFunctionByHandler(nScriptHandler, 4);
+    } while (0);
     return ret;
 }
 
